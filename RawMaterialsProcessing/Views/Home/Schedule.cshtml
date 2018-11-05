@@ -1,0 +1,81 @@
+﻿@using System.Drawing
+@using RawMaterialsProcessing.Data
+
+@{
+    ViewData["Title"] = "Графики";
+    Random rnd = new Random();
+    var colors = new List<string>();
+    for (int i = 0; i < ViewBag.MachineTools.Length; i++)
+    {
+        colors.Add(String.Format("rgba({0},{1},{2})", rnd.Next(256), rnd.Next(256), rnd.Next(256)));
+    }
+}
+
+<link href="~/lib/vis.js/vis.min.css" rel="stylesheet" /> 
+
+<h1>Графики</h1>
+<div class="row">
+    <div class="col-lg-6">
+        <h2 align="center">Время работы</h2>
+        <canvas id="timeChart"></canvas>
+    </div>
+    <div class="col-lg-6">
+        <h2 align="center">Количество партий</h2>
+        <canvas id="countChart"></canvas>
+    </div>
+    <div class="col-lg-12">
+        <h2>Расписание</h2>
+    </div>
+    <div class="col-lg-12">
+        <div id="visualization"></div>
+    </div>
+</div>
+
+
+@section Scripts
+{
+    <script src="~/lib/chart.js/Chart.js"></script>
+    <script>
+        var machineTools = @Html.Raw(Json.Serialize(ViewBag.MachineTools));
+        var baccolors = @Html.Raw(Json.Serialize(colors));
+        var times = @Html.Raw(Json.Serialize(ViewBag.TotalTimes));
+        var counts = @Html.Raw(Json.Serialize(ViewBag.PartiesCount));
+        var ctx = document.getElementById('timeChart');
+        var myChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: machineTools,
+                datasets: [{
+                    label:"Время работы",
+                    data: times,
+                    backgroundColor: baccolors
+                }]
+            }
+        });
+        var ctx = document.getElementById('countChart');
+        var myChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: machineTools,
+                datasets: [{
+                    label: "Партии",
+                    data: counts,
+                    backgroundColor: baccolors
+                }]
+            }
+        });
+    </script>
+
+    <script src="~/lib/vis.js/vis.min.js"></script>  
+    <script type="text/javascript">  
+            var container = document.getElementById('visualization');  
+            var items = new vis.DataSet(@Html.Raw(Json.Serialize(ViewBag.TimeLineItems)));  
+            var groups = new vis.DataSet(@Html.Raw(Json.Serialize(ViewBag.TimeLineGroups))); 
+            var options = {};  
+            var timeline = new vis.Timeline(container, items, groups, options);
+    </script>  
+}
+
+
+
+

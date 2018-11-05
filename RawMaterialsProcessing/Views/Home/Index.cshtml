@@ -1,0 +1,172 @@
+﻿@using Microsoft.CodeAnalysis.CSharp.Syntax
+@using RawMaterialsProcessing.Data
+@{
+    ViewData["Title"] = "Главная";
+    var nomenclature = ViewBag.Nomenclature as List<Nomenclature>;
+    var machineTools = ViewBag.MachineTools as List<MachineTool>;
+    var operations = ViewBag.Operation as List<Operation>;
+    var parties = ViewBag.Parties as List<Party>;
+    var successMessages = ViewBag.SuccessMessages as List<string>;
+    var dangerMessages = ViewBag.DangerMessages as List<string>;
+}
+<div style="position: absolute; top: 50px; right: 0; z-index: 1">
+    @if (successMessages != null)
+    {
+        foreach (var successMessage in successMessages)
+        {
+            <div class="alert alert-success alert-dismissable">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                <strong>Успех!</strong> @successMessage
+            </div>
+        }
+    }
+
+    @if (dangerMessages != null)
+    {
+        foreach (var dangerMessage in dangerMessages)
+        {
+            <div class="alert alert-danger alert-dismissable">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                <strong>Ошибка!</strong> @dangerMessage
+            </div>
+        }
+    }
+</div>
+
+<h2>Загрузка данных из Excel</h2>
+
+@using (Html.BeginForm("UploadData", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+
+    <div class="row">
+        <div class="col-md-10">
+            <div class="input-group">
+                <input type="file" id="files" name="files" class="form-control" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" multiple />
+                <span class="input-group-btn">
+                    <input type="submit" value="Загрузить" class="btn btn-primary" />
+                </span>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="input-group">
+                <a asp-action="ClearDatabase" class="btn btn-danger">Очистить базу</a>
+            </div>
+        </div>
+    </div>
+
+}
+<hr>
+
+<h3>Примечание</h3>
+<p>
+    К загрузке допущены следующие файлы формата Excel: <br>
+    -machine_tools.xlsx, <br>
+    -nomenclatures.xlsx, <br>
+    -parties.xlsx,<br>
+    -times.xlsx.<br>
+    Загрузить можно все файлы сразу или по отдельности. Причем, загрузка данных  из times и parties возможна только после загрузки справочников, на которые они ссылаются.<br>
+    Повторная загрузка данных доступна только для parties и times.
+
+</p>
+
+<hr>
+
+<div class="row">
+    @if (nomenclature != null && nomenclature.Any())
+    {
+        <div class="col-md-6">
+            <h4>Номенклатура</h4>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th class="col-xs-3">@Html.DisplayNameFor(m => nomenclature.FirstOrDefault().Id)</th>
+                        <th class="col-xs-3">@Html.DisplayNameFor(m => nomenclature.FirstOrDefault().Name)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in nomenclature)
+                    {
+                        <tr>
+                            <td class="col-xs-3">@Html.DisplayTextFor(m => item.Id)</td>
+                            <td class="col-xs-3">@Html.DisplayTextFor(m => item.Name)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    @{
+
+    }
+    @if (machineTools != null && machineTools.Any())
+    {
+        <div class="col-md-6">
+            <h4>Оборудование</h4>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th class="col-xs-3">@Html.DisplayNameFor(m => machineTools.FirstOrDefault().Id)</th>
+                        <th class="col-xs-3">@Html.DisplayNameFor(m => machineTools.FirstOrDefault().Name)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in machineTools)
+                    {
+                        <tr>
+                            <td class="col-xs-3">@Html.DisplayTextFor(m => item.Id)</td>
+                            <td class="col-xs-3">@Html.DisplayTextFor(m => item.Name)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    @if (operations != null && operations.Any())
+    {
+        <div class="col-md-6">
+            <h4>Время выполнения</h4>
+            <table class="table  table-bordered">
+                <thead>
+                    <tr>
+                        <th class="col-xs-3">@Html.DisplayNameFor(m => operations.FirstOrDefault().MachineTool)</th>
+                        <th class="col-xs-3">@Html.DisplayNameFor(m => operations.FirstOrDefault().Nomenclature)</th>
+                        <th class="col-xs-3">@Html.DisplayNameFor(m => operations.FirstOrDefault().Duration)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in operations)
+                    {
+                        <tr>
+                            <td class="col-xs-3">@Html.DisplayTextFor(m => item.MachineTool.Name)</td>
+                            <td class="col-xs-3">@Html.DisplayTextFor(m => item.Nomenclature.Name)</td>
+                            <td class="col-xs-3">@Html.DisplayTextFor(m => item.Duration)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    @if (parties != null && parties.Any())
+    {
+        <div class="col-xs-6">
+            <h4>Партии</h4>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th class="col-xs-2">@Html.DisplayNameFor(m => parties.FirstOrDefault().Id)</th>
+                        <th class="col-xs-4">@Html.DisplayNameFor(m => parties.FirstOrDefault().Nomenclature)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in parties)
+                    {
+                        <tr>
+                            <td class="col-xs-2">@Html.DisplayTextFor(m => item.Id)</td>
+                            <td class="col-xs-4">@Html.DisplayTextFor(m => item.Nomenclature.Name)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

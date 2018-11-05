@@ -1,0 +1,63 @@
+﻿@model List<Work>
+@{
+    ViewData["Title"] = "Расписание";
+    var startTime = DateTime.Today.AddHours(ViewBag.StartHour);
+}
+
+@using (Html.BeginForm(FormMethod.Post, new {id= "mainForm", name="mainForm"}))
+{
+    <hr>
+    <div class="btn-group btn-group-justified">
+        <div class="btn-group">
+            <button asp-action="SaveToExcel"  class="btn btn-default">Сохранить в Excel</button>
+        </div>
+        <div class="btn-group">
+            <button asp-action="CreateGraph" class="btn btn-default">Графики</button>
+        </div>
+    </div>
+    <h2>Расписание <small>@(ViewBag.Optimized ? "Оптимизировано" : "Без оптимизации")</small></h2>
+
+    <div class="btn-group btn-group-justified">
+        <a asp-action="MakeASchedule" asp-route-optimized="@false" class="btn btn-danger">Без оптимизации</a>
+        <a asp-action="MakeASchedule" asp-route-optimized="@true" class="btn btn-success">Оптимизировать</a>
+    </div>
+    <hr>
+    @for (var i = 0; i < Model.Count; i++)
+    {
+        @Html.HiddenFor(model => model[i].MachineTool.Id)
+        @Html.HiddenFor(model => model[i].MachineTool.Name)
+        @Html.HiddenFor(model => model[i].TotalTime)
+        <h3>@Html.DisplayTextFor(model => model[i].MachineTool.Name) <small>Время работы: @Html.DisplayTextFor(model => model[i].TotalTime), количество партий: @Html.DisplayTextFor(model => model[i].Parties.Count)</small></h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>@Html.DisplayNameFor(model => model[i].Parties.FirstOrDefault().StartTime)</th>
+                    <th>@Html.DisplayNameFor(model => model[i].Parties.FirstOrDefault().EndTime)</th>
+                    <th>@Html.DisplayNameFor(model => model[i].Parties.FirstOrDefault().Party)</th>
+                    <th>@Html.DisplayNameFor(model => model[i].Parties.FirstOrDefault().Party.Nomenclature)</th>
+                    <th>@Html.DisplayNameFor(model => model[i].Parties.FirstOrDefault().Duration)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (var j = 0; j < Model[i].Parties.Count; j++)
+                {
+                    @Html.HiddenFor(model => model[i].Parties[j].StartTime)
+                    @Html.HiddenFor(model => model[i].Parties[j].EndTime)
+                    @Html.HiddenFor(model => model[i].Parties[j].Duration)
+                    @Html.HiddenFor(model => model[i].Parties[j].Party.Id)
+                    @Html.HiddenFor(model => model[i].Parties[j].Party.NomenclatureId)
+                    @Html.HiddenFor(model => model[i].Parties[j].Party.Nomenclature.Id)
+                    @Html.HiddenFor(model => model[i].Parties[j].Party.Nomenclature.Name)
+                    <tr>
+                        <td>@startTime.AddMinutes(Model[i].Parties[j].StartTime).ToShortTimeString()</td>
+                        <td>@startTime.AddMinutes(Model[i].Parties[j].EndTime).ToShortTimeString()</td>
+                        <td>@Html.DisplayTextFor(model => model[i].Parties[j].Party.Id)</td>
+                        <td>@Html.DisplayTextFor(model => model[i].Parties[j].Party.Nomenclature.Name)</td>
+                        <td>@Html.DisplayTextFor(model => model[i].Parties[j].Duration)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}
+
